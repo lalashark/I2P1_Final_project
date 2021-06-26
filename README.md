@@ -5,6 +5,12 @@ Introduction to programming 1 final project
   Any C++ header file is not allow.
 - Plagiarism is strictly not allowed
 
+## Run it
+```
+cd I2P1_Final_project
+make
+./game
+```
 ## Resource
 
 - Allegro download: [https ://github.com/liballeg/allegro5/releases](https://github.com/liballeg/allegro5/releases)
