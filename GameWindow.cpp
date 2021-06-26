@@ -1,9 +1,14 @@
 #include "GameWindow.h"
 
 bool draw = false;
+// 1 = menu
+// 2 = playing
+// 3 = GG
+// 4 = Win
 int window = 1;
 
-const char *title = "Final Project 10xxxxxxx";
+
+const char *title = "Final Project 108000121";
 
 // ALLEGRO Variables
 ALLEGRO_DISPLAY* display = NULL;
@@ -83,6 +88,7 @@ void game_update(){
             // initialize next scene
             game_scene_init();
             judge_next_window = false;
+            play_time = al_get_time();
             window = 2;
         }
     }
@@ -103,6 +109,8 @@ int process_event(){
 
     // Shutdown our program
     if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        return GAME_TERMINATE;
+    if (close_game == true)
         return GAME_TERMINATE;
     else if(event.type == ALLEGRO_EVENT_TIMER)
         if(event.timer.source == fps)

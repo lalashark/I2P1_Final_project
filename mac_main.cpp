@@ -1,7 +1,7 @@
 #define ALLEGRO_NO_MAGIC_MAIN
 #include "GameWindow.h"
 
-​int real_main(int argc, char **argv)
+int real_main(int argc, char **argv)
 {
    Game_establish();
 }
