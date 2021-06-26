@@ -47,6 +47,7 @@ Item rocks[rocks_count];
 Item stars[stars_count];
 ALLEGRO_SAMPLE *sample = NULL;
 
+
 void rocks_init()
 {
     // load rock images
@@ -108,7 +109,8 @@ void character_init()
     chara.x = WIDTH / 2;
     chara.y = seal_floor;
     chara.dir = false;
-
+    chara.hp = 5;
+    chara.atk_count = 3;
     // initial the animation component
     chara.state = STOP;
     chara.anime = 0;
@@ -222,7 +224,7 @@ void rocks_update()
     }
     if (!chara.hp)
     {
-        close_game = true;
+        judge_next_window = true;
     }
 }
 

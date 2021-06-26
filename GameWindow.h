@@ -10,3 +10,4 @@ int process_event();
 void game_draw();
 int game_run();
 void game_destroy();
+void gg_scene_draw();

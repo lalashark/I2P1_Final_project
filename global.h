@@ -18,7 +18,8 @@ extern bool key_state[ALLEGRO_KEY_MAX];
 extern bool judge_next_window;
 extern bool close_game;
 extern float play_time;
+extern int window;
 extern ALLEGRO_EVENT_QUEUE *event_queue;
 extern ALLEGRO_TIMER *fps;
-extern ALLEGRO_FONT *font;
+extern ALLEGRO_FONT *font, *fonts;
 #endif

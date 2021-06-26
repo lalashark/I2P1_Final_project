@@ -1,12 +1,6 @@
 #include "GameWindow.h"
 
 bool draw = false;
-// 1 = menu
-// 2 = playing
-// 3 = GG
-// 4 = Win
-int window = 1;
-
 const char *title = "Final Project 108000121";
 
 // ALLEGRO Variables
@@ -84,8 +78,15 @@ void game_begin()
 }
 void game_update()
 {
+    printf("ou %d",window);
+    if (window == 2)
+    {
+        charater_update();
+        rocks_update();
+    }
     if (judge_next_window)
     {
+        printf("%d %d\n",window, judge_next_window);
         if (window == 1)
         {
             // not back menu anymore, therefore destroy it
@@ -96,11 +97,17 @@ void game_update()
             play_time = al_get_time();
             window = 2;
         }
-    }
-    if (window == 2)
-    {
-        charater_update();
-        rocks_update();
+        else if (window == 2)
+        {
+            judge_next_window = false;
+            gg_scene_init();
+            window = 3;
+        }
+        else if (window ==3 )
+        {
+            judge_next_window = false;
+            window = 1;
+        }
     }
 }
 int process_event()
@@ -116,6 +123,10 @@ int process_event()
     else if (window == 2)
     {
         charater_process(event);
+    }
+    else if (window == 3)
+    {
+        gg_scene_process(event);
     }
 
     // Shutdown our program
@@ -138,6 +149,10 @@ void game_draw()
     else if (window == 2)
     {
         game_scene_draw();
+    }
+    else if (window == 3)
+    {
+        gg_scene_draw();
     }
     al_flip_display();
 }
