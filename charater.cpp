@@ -7,8 +7,9 @@ enum
     MOVE,
     ATK
 };
-const float seal_speed = 1;
+float base_speed = 1;
 const int seal_floor = 500;
+const int rocks_count = 20;
 typedef struct character
 {
     int x, y;          // the position of image
@@ -21,24 +22,55 @@ typedef struct character
     int anime;      // counting the time of animation
     int anime_time; // indicate how long the animation
     int hp = 5;
+    float speedX = 1;
 } Character;
+
+typedef struct bad
+{
+    int x, y;          // the position of image
+    int width, height; // the width and height of image
+    bool live;         // live this rock ?
+    int state;         // the state of character
+    float speedX = 1;
+    ALLEGRO_BITMAP *img_move[3];
+    ALLEGRO_BITMAP *img_atk[2];
+    ALLEGRO_SAMPLE_INSTANCE *atk_Sound;
+    int anime;      // counting the time of animation
+    int anime_time; // indicate how long the animation
+    int hp = 1;
+} Bad;
+
 Character chara;
+Bad rocks[rocks_count];
 ALLEGRO_SAMPLE *sample = NULL;
 
 void character_init()
 {
-    // load character images
-    for (int i = 1; i <= 2; i++)
+    printf("charater_init\n");
+    // load rock images
+    for (int rock = 0; rock < rocks_count; rock++)
     {
-        char temp[50];
-        sprintf(temp, "./image/char_move%d.png", i);
-        chara.img_move[i - 1] = al_load_bitmap(temp);
+        for (int i = 1; i <= 3; i++)
+        {
+            char temp[50];
+            sprintf(temp, "./image/rock_move%d.png", i);
+            rocks[rock].img_move[i - 1] = al_load_bitmap(temp);
+        }
     }
+
+    // load seal images
+
     for (int i = 1; i <= 2; i++)
     {
         char temp[50];
         sprintf(temp, "./image/char_atk%d.png", i);
         chara.img_atk[i - 1] = al_load_bitmap(temp);
+    }
+    for (int i = 1; i <= 2; i++)
+    {
+        char temp[50];
+        sprintf(temp, "./image/char_move%d.png", i);
+        chara.img_move[i - 1] = al_load_bitmap(temp);
     }
     // load effective sound
     sample = al_load_sample("./sound/atk_sound.wav");
@@ -53,16 +85,51 @@ void character_init()
     chara.y = seal_floor;
     chara.dir = false;
 
+    // initial the geometric information of character rock
+    for (int rock = 0; rock < rocks_count; rock++)
+    {
+        rocks[rock].width = al_get_bitmap_width(rocks[rock].img_move[0]);
+        rocks[rock].height = al_get_bitmap_height(rocks[rock].img_move[0]);
+        rocks[rock].x = WIDTH / 2;
+        rocks[rock].y = 0;
+        rocks[rock].live = false;
+    }
+
     // initial the animation component
     chara.state = STOP;
     chara.anime = 0;
     chara.anime_time = 30;
 
+    // initial the animation component rock
+    for (int rock = 0; rock < rocks_count; rock++)
+    {
+        rocks[rock].state = MOVE;
+        rocks[rock].anime = 0;
+        rocks[rock].anime_time = 30;
+    }
+
     font = al_load_ttf_font("./font/pirulen.ttf", 12, 0);
 }
 void charater_process(ALLEGRO_EVENT event)
 {
+    printf("charater_process\n");
     // process the animation
+    if (event.type == ALLEGRO_EVENT_TIMER)
+    {
+        if (event.timer.source == fps)
+        {
+            chara.anime++;
+            chara.anime %= chara.anime_time;
+        }
+        // process the animation of rock
+        for (int rock = 0; rock < rocks_count; rock++)
+        {
+            rocks[rock].anime++;
+            rocks[rock].anime %= rocks[rock].anime_time;
+        }
+    }
+    // process the keyboard event
+
     if (event.type == ALLEGRO_EVENT_TIMER)
     {
         if (event.timer.source == fps)
@@ -85,26 +152,57 @@ void charater_process(ALLEGRO_EVENT event)
 void charater_update()
 {
     // use the idea of finite state machine to deal with different state
+    /*
     if (key_state[ALLEGRO_KEY_W])
     {
-        chara.y -= seal_speed;
+        chara.y -= base_speed;
         chara.state = MOVE;
     }
-    else if (key_state[ALLEGRO_KEY_A])
+    else*/
+
+    // generate a rock at top
+    printf("charater_update\n");
+    for (int rock = rocks_count - 1; rock >= 0; rock--)
+    {
+        // if rock is not live
+        if (!rocks[rock].live)
+        {
+            if (rand() % 300 == 0)
+            {
+                rocks[rock].live = true;
+                rocks[rock].y = 30;
+                rocks[rock].x = 30 + rand() % (WIDTH - 20);
+                break;
+            }
+        }
+    }
+
+    // move the rock who live.
+    for (int rock = 0; rock < rocks_count; rock++)
+    {
+        if (rocks[rock].live)
+        {
+            rocks[rock].y += rocks[rock].speedX * base_speed;
+            if (rocks[rock].y > HEIGHT)
+                rocks[rock].live = false;
+        }
+    }
+
+    if (key_state[ALLEGRO_KEY_A])
     {
         chara.dir = false;
-        chara.x -= seal_speed;
+        chara.x -= base_speed;
         chara.state = MOVE;
     }
-    else if (key_state[ALLEGRO_KEY_S])
+    /*else if (key_state[ALLEGRO_KEY_S])
     {
-        chara.y += seal_speed;
+        chara.y += base_speed;
         chara.state = MOVE;
-    }
+    }*/
     else if (key_state[ALLEGRO_KEY_D])
     {
         chara.dir = true;
-        chara.x += seal_speed;
+        chara.x += base_speed;
         chara.state = MOVE;
     }
     else if (key_state[ALLEGRO_KEY_SPACE])
@@ -120,9 +218,39 @@ void charater_update()
     {
         chara.state = STOP;
     }
+
+    // colider
+    for (unsigned int rock = 0; rock < rocks_count; rock++)
+    {
+        if (rocks[rock].live)
+        {
+            if 
+            (
+                (
+                    (rocks[rock].x + rocks[rock].width > chara.x &&
+                     rocks[rock].x < chara.x) ||
+                    (rocks[rock].x < chara.x + chara.width &&
+                     rocks[rock].x + rocks[rock].width > chara.x)) &&
+                (
+                    (rocks[rock].y + rocks[rock].height > chara.y &&
+                     rocks[rock].y < chara.y) ||
+                    (rocks[rock].y < chara.y + chara.height &&
+                     rocks[rock].y + rocks[rock].height > chara.y))
+            )
+            {
+                chara.hp--;
+                rocks[rock].live = false;
+            }
+        }
+    }
+    if (!chara.hp)
+    {
+        close_game = true;
+    }
 }
 void character_draw()
 {
+    printf("character_draw\n");
     // with the state, draw corresponding image
     // draw slot of hp
     al_draw_rectangle(WIDTH / 2 - 100, seal_floor + 45, WIDTH / 2 + 180, seal_floor + 70, al_map_rgb(200, 200, 200), 5);
@@ -133,8 +261,8 @@ void character_draw()
     char c[50];
     sprintf(c, ">> %d <<", (int)(al_get_time() - play_time));
     al_draw_text(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 150, seal_floor + 40, ALLEGRO_ALIGN_CENTRE, "Live Time");
-
     al_draw_text(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 150, seal_floor + 55, ALLEGRO_ALIGN_CENTRE, c);
+
     if (chara.state == STOP)
     {
         if (chara.dir)
@@ -191,6 +319,26 @@ void character_draw()
             {
                 al_draw_bitmap(chara.img_atk[1], chara.x, chara.y, 0);
                 al_play_sample_instance(chara.atk_Sound);
+            }
+        }
+    }
+
+    // draw rock
+    for (int rock = 0; rock < rocks_count; rock++)
+    {
+        if (rocks[rock].live)
+        {
+            if (rocks[rock].anime < rocks[rock].anime_time / 3)
+            {
+                al_draw_bitmap(rocks[rock].img_move[0], rocks[rock].x, rocks[rock].y, 0);
+            }
+            else if (rocks[rock].anime < rocks[rock].anime_time / 3 * 2)
+            {
+                al_draw_bitmap(rocks[rock].img_move[1], rocks[rock].x, rocks[rock].y, 0);
+            }
+            else
+            {
+                al_draw_bitmap(rocks[rock].img_move[2], rocks[rock].x, rocks[rock].y, 0);
             }
         }
     }
