@@ -58,7 +58,7 @@ void character_init()
     chara.anime = 0;
     chara.anime_time = 30;
 
-    font = al_load_ttf_font("./font/pirulen.ttf",12,0);
+    font = al_load_ttf_font("./font/pirulen.ttf", 12, 0);
 }
 void charater_process(ALLEGRO_EVENT event)
 {
@@ -125,15 +125,16 @@ void character_draw()
 {
     // with the state, draw corresponding image
     // draw slot of hp
-    al_draw_rectangle(WIDTH / 2 - 100, seal_floor + 45, WIDTH / 2 + 180, seal_floor + 70, al_map_rgb(255, 0, 0), 8);
+    al_draw_rectangle(WIDTH / 2 - 100, seal_floor + 45, WIDTH / 2 + 180, seal_floor + 70, al_map_rgb(200, 200, 200), 5);
     // draw blocks in hp
     al_draw_filled_rectangle(WIDTH / 2 - 100, seal_floor + 45, WIDTH / 2 - 100 + (280) / 5 * chara.hp, seal_floor + 70, al_map_rgb(255, 0, 0));
-
+    al_draw_rectangle(WIDTH / 2 - 100, seal_floor + 45, WIDTH / 2 - 100 + (280) / 5 * chara.hp, seal_floor + 70, al_map_rgb(200, 200, 200), 5);
     // print time from game start. printf("%f\n", al_get_time() - play_time);
     char c[50];
-    sprintf(c, "%d",(int )(al_get_time() - play_time));
+    sprintf(c, ">> %d <<", (int)(al_get_time() - play_time));
+    al_draw_text(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 150, seal_floor + 40, ALLEGRO_ALIGN_CENTRE, "Live Time");
 
-    al_draw_text(font, al_map_rgb(255,255,255), WIDTH/2 - 150 , seal_floor+ 45 , ALLEGRO_ALIGN_CENTRE, c);
+    al_draw_text(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 150, seal_floor + 55, ALLEGRO_ALIGN_CENTRE, c);
     if (chara.state == STOP)
     {
         if (chara.dir)

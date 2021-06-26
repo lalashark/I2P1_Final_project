@@ -3,10 +3,10 @@
 
 int real_main(int argc, char **argv)
 {
-   Game_establish();
+    Game_establish();
 }
 
 int main(int argc, char **argv)
 {
-   return al_run_main(argc, argv, real_main);
+    return al_run_main(argc, argv, real_main);
 }
