@@ -33,12 +33,15 @@ void menu_destroy()
 void game_scene_init()
 {
     character_init();
+    rocks_init();
     background = al_load_bitmap("./image/stage.jpg");
 }
 void game_scene_draw()
 {
     al_draw_bitmap(background, 0, 0, 0);
     character_draw();
+    rocks_draw();
+    
 }
 void game_scene_destroy()
 {

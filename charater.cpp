@@ -10,6 +10,7 @@ enum
 float base_speed = 1;
 const int seal_floor = 500;
 const int rocks_count = 15;
+const int stars_count = 1;
 typedef struct character
 {
     int x, y;          // the position of image
@@ -26,7 +27,7 @@ typedef struct character
     float speedX = 1;
 } Character;
 
-typedef struct bad
+typedef struct item
 {
     int x, y;          // the position of image
     int width, height; // the width and height of image
@@ -39,15 +40,15 @@ typedef struct bad
     int anime;      // counting the time of animation
     int anime_time; // indicate how long the animation
     int hp = 1;
-} Bad;
+} Item;
 
 Character chara;
-Bad rocks[rocks_count];
+Item rocks[rocks_count];
+Item stars[stars_count];
 ALLEGRO_SAMPLE *sample = NULL;
 
-void character_init()
+void rocks_init()
 {
-    //printf("charater_init\n");
     // load rock images
     for (int rock = 0; rock < rocks_count; rock++)
     {
@@ -58,6 +59,28 @@ void character_init()
             rocks[rock].img_move[i - 1] = al_load_bitmap(temp);
         }
     }
+    // initial the geometric information of character rock
+    for (int rock = 0; rock < rocks_count; rock++)
+    {
+        rocks[rock].width = al_get_bitmap_width(rocks[rock].img_move[0]);
+        rocks[rock].height = al_get_bitmap_height(rocks[rock].img_move[0]);
+        rocks[rock].x = WIDTH / 2;
+        rocks[rock].y = 0;
+        rocks[rock].live = false;
+    }
+
+    // initial the animation component rock
+    for (int rock = 0; rock < rocks_count; rock++)
+    {
+        rocks[rock].state = MOVE;
+        rocks[rock].anime = 0;
+        rocks[rock].anime_time = 30;
+    }
+}
+
+void character_init()
+{
+    //printf("charater_init\n");
 
     // load seal images
     for (int i = 1; i <= 2; i++)
@@ -86,28 +109,10 @@ void character_init()
     chara.y = seal_floor;
     chara.dir = false;
 
-    // initial the geometric information of character rock
-    for (int rock = 0; rock < rocks_count; rock++)
-    {
-        rocks[rock].width = al_get_bitmap_width(rocks[rock].img_move[0]);
-        rocks[rock].height = al_get_bitmap_height(rocks[rock].img_move[0]);
-        rocks[rock].x = WIDTH / 2;
-        rocks[rock].y = 0;
-        rocks[rock].live = false;
-    }
-
     // initial the animation component
     chara.state = STOP;
     chara.anime = 0;
     chara.anime_time = 30;
-
-    // initial the animation component rock
-    for (int rock = 0; rock < rocks_count; rock++)
-    {
-        rocks[rock].state = MOVE;
-        rocks[rock].anime = 0;
-        rocks[rock].anime_time = 30;
-    }
 
     font = al_load_ttf_font("./font/pirulen.ttf", 12, 0);
 }
@@ -155,17 +160,8 @@ void charater_process(ALLEGRO_EVENT event)
         key_state[event.keyboard.keycode] = false;
     }
 }
-void charater_update()
+void rocks_update()
 {
-    // use the idea of finite state machine to deal with different state
-    /*
-    if (key_state[ALLEGRO_KEY_W])
-    {
-        chara.y -= base_speed;
-        chara.state = MOVE;
-    }
-    else*/
-
     // generate a rock at top
     //printf("charater_update\n");
     for (int rock = rocks_count - 1; rock >= 0; rock--)
@@ -192,40 +188,6 @@ void charater_update()
             if (rocks[rock].y > HEIGHT)
                 rocks[rock].live = false;
         }
-    }
-
-    if (key_state[ALLEGRO_KEY_A])
-    {
-        chara.dir = false;
-        chara.x -= base_speed;
-        chara.state = MOVE;
-    }
-    /*else if (key_state[ALLEGRO_KEY_S])
-    {
-        chara.y += base_speed;
-        chara.state = MOVE;
-    }*/
-    else if (key_state[ALLEGRO_KEY_D])
-    {
-        chara.dir = true;
-        chara.x += base_speed;
-        chara.state = MOVE;
-    }
-    else if (key_state[ALLEGRO_KEY_SPACE])
-    {
-        if (chara.atk_count >= 1)
-        {
-            chara.state = ATK;
-        }
-    }
-    else if (chara.anime == chara.anime_time - 1)
-    {
-        chara.anime = 0;
-        chara.state = STOP;
-    }
-    else if (chara.anime == 0)
-    {
-        chara.state = STOP;
     }
 
     // colider
@@ -261,6 +223,75 @@ void charater_update()
     if (!chara.hp)
     {
         close_game = true;
+    }
+}
+
+void charater_update()
+{
+    // use the idea of finite state machine to deal with different state
+    /*
+    if (key_state[ALLEGRO_KEY_W])
+    {
+        chara.y -= base_speed;
+        chara.state = MOVE;
+    }
+    else*/
+
+    if (key_state[ALLEGRO_KEY_A])
+    {
+        chara.dir = false;
+        chara.x -= base_speed;
+        chara.state = MOVE;
+    }
+    /*else if (key_state[ALLEGRO_KEY_S])
+    {
+        chara.y += base_speed;
+        chara.state = MOVE;
+    }*/
+    else if (key_state[ALLEGRO_KEY_D])
+    {
+        chara.dir = true;
+        chara.x += base_speed;
+        chara.state = MOVE;
+    }
+    else if (key_state[ALLEGRO_KEY_SPACE])
+    {
+        if (chara.atk_count >= 1)
+        {
+            chara.state = ATK;
+        }
+    }
+    else if (chara.anime == chara.anime_time - 1)
+    {
+        chara.anime = 0;
+        chara.state = STOP;
+    }
+    else if (chara.anime == 0)
+    {
+        chara.state = STOP;
+    }
+}
+
+void rocks_draw()
+{
+    // draw rock
+    for (int rock = 0; rock < rocks_count; rock++)
+    {
+        if (rocks[rock].live)
+        {
+            if (rocks[rock].anime < rocks[rock].anime_time / 3)
+            {
+                al_draw_bitmap(rocks[rock].img_move[0], rocks[rock].x, rocks[rock].y, 0);
+            }
+            else if (rocks[rock].anime < rocks[rock].anime_time / 3 * 2)
+            {
+                al_draw_bitmap(rocks[rock].img_move[1], rocks[rock].x, rocks[rock].y, 0);
+            }
+            else
+            {
+                al_draw_bitmap(rocks[rock].img_move[2], rocks[rock].x, rocks[rock].y, 0);
+            }
+        }
     }
 }
 void character_draw()
@@ -334,26 +365,6 @@ void character_draw()
             {
                 al_draw_bitmap(chara.img_atk[1], chara.x, chara.y, 0);
                 al_play_sample_instance(chara.atk_Sound);
-            }
-        }
-    }
-
-    // draw rock
-    for (int rock = 0; rock < rocks_count; rock++)
-    {
-        if (rocks[rock].live)
-        {
-            if (rocks[rock].anime < rocks[rock].anime_time / 3)
-            {
-                al_draw_bitmap(rocks[rock].img_move[0], rocks[rock].x, rocks[rock].y, 0);
-            }
-            else if (rocks[rock].anime < rocks[rock].anime_time / 3 * 2)
-            {
-                al_draw_bitmap(rocks[rock].img_move[1], rocks[rock].x, rocks[rock].y, 0);
-            }
-            else
-            {
-                al_draw_bitmap(rocks[rock].img_move[2], rocks[rock].x, rocks[rock].y, 0);
             }
         }
     }

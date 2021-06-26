@@ -100,6 +100,7 @@ void game_update()
     if (window == 2)
     {
         charater_update();
+        rocks_update();
     }
 }
 int process_event()
