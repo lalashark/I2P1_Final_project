@@ -147,9 +147,12 @@ void charater_process(ALLEGRO_EVENT event)
     }
     else if (event.type == ALLEGRO_EVENT_KEY_UP)
     {
+        if (key_state[ALLEGRO_KEY_SPACE])
+        {
+            printf("%d\n", chara.atk_count);
+            chara.atk_count -= 1;
+        }
         key_state[event.keyboard.keycode] = false;
-        printf("%d\n", chara.atk_count);
-        chara.atk_count -= 1;
     }
 }
 void charater_update()
