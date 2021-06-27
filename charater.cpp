@@ -22,9 +22,10 @@ typedef struct character
     ALLEGRO_SAMPLE_INSTANCE *atk_Sound;
     int anime;      // counting the time of animation
     int anime_time; // indicate how long the animation
-    int hp = 5;
-    int atk_count = 3;
-    float speedX = 1;
+    int hp;
+    int atk_count;
+    int wait_for_heal;
+    float speedX;
 } Character;
 
 typedef struct item
@@ -140,6 +141,9 @@ void character_init()
     chara.dir = false;
     chara.hp = 5;
     chara.atk_count = 3;
+    chara.wait_for_heal = true;
+    chara.speedX = 1;
+    chara.atk_count = 3;
     // initial the animation component
     chara.state = STOP;
     chara.anime = 0;
@@ -247,11 +251,7 @@ void stars_update()
                 else
                 {
                     stars[star].live = false;
-                    chara.hp++;
-                    if (chara.hp > 5)
-                    {
-                        chara.hp = 5;
-                    }
+                    chara.speedX+=0.2;
                 }
             }
         }
@@ -367,6 +367,20 @@ void charater_update()
     else if (chara.anime == 0)
     {
         chara.state = STOP;
+    }
+
+    if ((int)(al_get_time() - play_time) % 20 == 1)
+    {
+        chara.hp += 1;
+        chara.wait_for_heal = false;
+        if(chara.hp >= 5)
+        {
+            chara.hp = 5;
+        }
+    }
+    else 
+    {
+        chara.wait_for_heal = true;
     }
 }
 
