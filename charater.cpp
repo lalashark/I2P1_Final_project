@@ -104,8 +104,8 @@ void rocks_init()
     for (int rock = 0; rock < rocks_count; rock++)
     {
         rocks[rock].state = MOVE;
-        rocks[rock].anime = 0;
-        rocks[rock].anime_time = 30;
+        rocks[rock].anime = ( rock * 3 )% 30;
+        rocks[rock].anime_time = (((rock * 3) %30 )+ 20)%30;
     }
 }
 
@@ -145,7 +145,7 @@ void character_init()
     chara.speedX = 1;
     chara.atk_count = 3;
     // initial the animation component
-    chara.state = STOP;
+    chara.state = MOVE;
     chara.anime = 0;
     chara.anime_time = 30;
 
@@ -167,6 +167,12 @@ void charater_process(ALLEGRO_EVENT event)
         {
             rocks[rock].anime++;
             rocks[rock].anime %= rocks[rock].anime_time;
+        }
+        // process the animation of star
+        for (int star = 0; star < stars_count; star++)
+        {
+            stars[star].anime++;
+            stars[star].anime %= stars[star].anime_time;
         }
     }
     // process the keyboard event
@@ -368,8 +374,8 @@ void charater_update()
     {
         chara.state = STOP;
     }
-
-    if ((int)(al_get_time() - play_time) % 20 == 1)
+    
+    if ((int)(al_get_time() - play_time) % 20 == 1 && chara.wait_for_heal)
     {
         chara.hp += 1;
         chara.wait_for_heal = false;
@@ -378,7 +384,7 @@ void charater_update()
             chara.hp = 5;
         }
     }
-    else 
+    else
     {
         chara.wait_for_heal = true;
     }
@@ -389,9 +395,10 @@ void stars_draw()
     // draw star
     for (int star = 0; star < stars_count; star++)
     {
-
+        
         if (stars[star].live)
         {
+            printf("%d %d\n", stars[star].anime, stars[star].anime_time);
             if (stars[star].anime < stars[star].anime_time / 3)
             {
                 al_draw_bitmap(stars[star].img_move[0], stars[star].x, stars[star].y, 0);
