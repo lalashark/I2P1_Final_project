@@ -78,15 +78,16 @@ void game_begin()
 }
 void game_update()
 {
-    printf("ou %d",window);
+    //printf("ou %d",window);
     if (window == 2)
     {
         charater_update();
         rocks_update();
+        stars_update();
     }
     if (judge_next_window)
     {
-        printf("%d %d\n",window, judge_next_window);
+        //printf("%d %d\n",window, judge_next_window);
         if (window == 1)
         {
             // not back menu anymore, therefore destroy it

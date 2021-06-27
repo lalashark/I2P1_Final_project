@@ -10,7 +10,7 @@ enum
 float base_speed = 1;
 const int seal_floor = 500;
 const int rocks_count = 15;
-const int stars_count = 1;
+const int stars_count = 2;
 typedef struct character
 {
     int x, y;          // the position of image
@@ -47,6 +47,35 @@ Item rocks[rocks_count];
 Item stars[stars_count];
 ALLEGRO_SAMPLE *sample = NULL;
 
+void stars_init()
+{
+    // load star images
+    for (int star = 0; star < stars_count; star++)
+    {
+        for (int i = 1; i <= 3; i++)
+        {
+            char temp[50];
+            sprintf(temp, "./image/star_move%d.png", i);
+            stars[star].img_move[i - 1] = al_load_bitmap(temp);
+        }
+    }
+    // initial the geometric information of character rock
+    for (int star = 0; star < stars_count; star++)
+    {
+        stars[star].width = al_get_bitmap_width(stars[star].img_move[0]);
+        stars[star].height = al_get_bitmap_height(stars[star].img_move[0]);
+        stars[star].x = 0;
+        stars[star].y = 0;
+        stars[star].live = false;
+        stars[star].speedX = 3;
+    }
+    for (int star = 0; star < stars_count; star++)
+    {
+        stars[star].state = MOVE;
+        stars[star].anime = 0;
+        stars[star].anime_time = 20;
+    }
+}
 
 void rocks_init()
 {
@@ -106,7 +135,7 @@ void character_init()
     // initial the geometric information of character
     chara.width = al_get_bitmap_width(chara.img_move[0]);
     chara.height = al_get_bitmap_height(chara.img_move[0]);
-    chara.x = WIDTH / 2;
+    chara.x = WIDTH / 2 + 50;
     chara.y = seal_floor;
     chara.dir = false;
     chara.hp = 5;
@@ -162,6 +191,73 @@ void charater_process(ALLEGRO_EVENT event)
         key_state[event.keyboard.keycode] = false;
     }
 }
+
+void stars_update()
+{
+    // generate a rock at top
+    //printf("charater_update\n");
+    for (int star = stars_count - 1; star >= 0; star--)
+    {
+        // if rock is not live
+        if (!stars[star].live)
+        {
+
+            if (rand() % 300 == 0)
+            {
+                stars[star].live = true;
+                stars[star].y = (rand() % (HEIGHT)-150);
+                stars[star].x = 0;
+                printf("star generate: %d %d\n", stars[star].x, stars[star].y);
+                break;
+            }
+        }
+    }
+    for (int star = 0; star < stars_count; star++)
+    {
+        if (stars[star].live)
+        {
+            stars[star].y += stars[star].speedX * base_speed;
+            stars[star].x += stars[star].speedX * base_speed;
+            if (stars[star].y > HEIGHT || stars[star].x > WIDTH)
+                stars[star].live = false;
+        }
+    }
+    // colider
+    for (unsigned int star = 0; star < stars_count; star++)
+    {
+        if (stars[star].live)
+        {
+            if (
+                (
+                    (stars[star].x + stars[star].width > chara.x &&
+                     stars[star].x < chara.x) ||
+                    (stars[star].x < chara.x + chara.width &&
+                     stars[star].x + stars[star].width > chara.x)) &&
+                ((stars[star].y + stars[star].height > chara.y &&
+                  stars[star].y < chara.y) ||
+                 (stars[star].y < chara.y + chara.height &&
+                  stars[star].y + stars[star].height > chara.y)))
+            {
+                if (chara.state == ATK)
+                {
+                    // miss attack
+                    stars[star].live = false;
+                    //printf("ATK\n");
+                }
+                else
+                {
+                    stars[star].live = false;
+                    chara.hp++;
+                    if (chara.hp > 5)
+                    {
+                        chara.hp = 5;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void rocks_update()
 {
     // generate a rock at top
@@ -271,6 +367,30 @@ void charater_update()
     else if (chara.anime == 0)
     {
         chara.state = STOP;
+    }
+}
+
+void stars_draw()
+{
+    // draw star
+    for (int star = 0; star < stars_count; star++)
+    {
+
+        if (stars[star].live)
+        {
+            if (stars[star].anime < stars[star].anime_time / 3)
+            {
+                al_draw_bitmap(stars[star].img_move[0], stars[star].x, stars[star].y, 0);
+            }
+            else if (stars[star].anime < stars[star].anime_time / 3 * 2)
+            {
+                al_draw_bitmap(stars[star].img_move[1], stars[star].x, stars[star].y, 0);
+            }
+            else
+            {
+                al_draw_bitmap(stars[star].img_move[2], stars[star].x, stars[star].y, 0);
+            }
+        }
     }
 }
 

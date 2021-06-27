@@ -9,5 +9,7 @@ void rocks_init();
 void rocks_update();
 void rocks_draw();
 void rocks_destory();
-
+void stars_init();
+void stars_update();
+void stars_draw();
 
