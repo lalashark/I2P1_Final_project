@@ -284,10 +284,10 @@ void stars_update()
                     stars[star].live = false;
                     chara.speedX+=0.2;
                     al_play_sample_instance(chara.starsound);
-                    chara.hp++;
-                    if (chara.hp > 5)
+                    chara.speedX+=1;
+                    if (chara.speedX >= 2)
                     {
-                        chara.hp = 5;
+                        chara.speedX = 2;
                     }
                 }
             }
@@ -407,17 +407,19 @@ void charater_update()
         chara.state = STOP;
     }
     
-    if ((int)(al_get_time() - play_time) % 20 == 1 && chara.wait_for_heal)
+    if ((int)(al_get_time() - play_time) % 10 == 1 && chara.wait_for_heal )
     {
-        chara.hp += 1;
+        printf("1 wait_for_heal %d\n",chara.wait_for_heal);
+        chara.hp ++;
         chara.wait_for_heal = false;
         if(chara.hp >= 5)
         {
             chara.hp = 5;
         }
     }
-    else
+    else if ((int)(al_get_time() - play_time) % 10 == 2)
     {
+        printf("2 wait_for_heal %d\n",chara.wait_for_heal);
         chara.wait_for_heal = true;
     }
 }
@@ -430,7 +432,7 @@ void stars_draw()
         
         if (stars[star].live)
         {
-            printf("%d %d\n", stars[star].anime, stars[star].anime_time);
+            //printf("%d %d\n", stars[star].anime, stars[star].anime_time);
             if (stars[star].anime < stars[star].anime_time / 3)
             {
                 al_draw_bitmap(stars[star].img_move[0], stars[star].x, stars[star].y, 0);
