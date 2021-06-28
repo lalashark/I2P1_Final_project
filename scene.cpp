@@ -92,7 +92,7 @@ void game_scene_draw()
 {
 
     //background change by time
-    if(){al_draw_bitmap(background0, 0, 0, 0);}
+    if(0<=(int)(al_get_time() - play_time)<10){al_draw_bitmap(background0, 0, 0, 0);}
     else if((int)(al_get_time() - play_time)<10) al_draw_bitmap(background1, 0, 0, 0);
     else if(10<=(int)(al_get_time() - play_time)<20) al_draw_bitmap(background2, 0, 0, 0);
     else if(20<=(int)(al_get_time() - play_time)<30) al_draw_bitmap(background3, 0, 0, 0);
@@ -107,7 +107,12 @@ void game_scene_draw()
 }
 void game_scene_destroy()
 {
-    al_destroy_bitmap(background);
+    al_destroy_bitmap(background0);
+    al_destroy_bitmap(background1);
+    al_destroy_bitmap(background2);
+    al_destroy_bitmap(background3);
+    al_destroy_bitmap(background4);
+    al_destroy_bitmap(background5);
     character_destory();
 }
 
