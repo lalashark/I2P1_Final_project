@@ -14,3 +14,8 @@ void gg_scene_init();
 void gg_scene_process(ALLEGRO_EVENT event);
 void gg_scene_draw();
 void gg_scene_destroy();
+
+void htp_init();
+void htp_draw();
+void htp_process(ALLEGRO_EVENT event);
+void htp_destroy();

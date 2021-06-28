@@ -15,5 +15,6 @@ bool close_game = false;
 // 1 = menu
 // 2 = playing
 // 3 = GG
-// 4 = Win
+// 4 = htp
 int window = 1;
+int shtp = 0;

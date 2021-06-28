@@ -1,4 +1,5 @@
 #include "GameWindow.h"
+#include "scene.h"
 
 bool draw = false;
 const char *title = "Final Project 108000121";
@@ -88,7 +89,7 @@ void game_update()
     if (judge_next_window)
     {
         //printf("%d %d\n",window, judge_next_window);
-        if (window == 1)
+        if (window == 1 && shtp == 0)
         {
             // not back menu anymore, therefore destroy it
             menu_destroy();
@@ -97,6 +98,16 @@ void game_update()
             judge_next_window = false;
             play_time = al_get_time();
             window = 2;
+        }
+        if (window == 1 && shtp == 1)
+        {
+            // not back menu anymore, therefore destroy it
+            menu_destroy();
+            // initialize next scene
+            htp_init();
+
+            judge_next_window = false;
+            window = 5;
         }
         else if (window == 2)
         {
@@ -108,7 +119,9 @@ void game_update()
         {
             judge_next_window = false;
             window = 1;
+
         }
+
     }
 }
 int process_event()
