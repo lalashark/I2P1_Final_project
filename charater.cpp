@@ -20,6 +20,9 @@ typedef struct character
     ALLEGRO_BITMAP *img_move[2];
     ALLEGRO_BITMAP *img_atk[2];
     ALLEGRO_SAMPLE_INSTANCE *atk_Sound;
+    ALLEGRO_SAMPLE_INSTANCE *starsound;
+    ALLEGRO_SAMPLE_INSTANCE *hitsound;
+    ALLEGRO_SAMPLE_INSTANCE *sealsound;
     int anime;      // counting the time of animation
     int anime_time; // indicate how long the animation
     int hp;
@@ -47,6 +50,10 @@ Character chara;
 Item rocks[rocks_count];
 Item stars[stars_count];
 ALLEGRO_SAMPLE *sample = NULL;
+ALLEGRO_SAMPLE *starsound = NULL;
+ALLEGRO_SAMPLE *hitsound = NULL;
+ALLEGRO_SAMPLE *sealsound = NULL;
+
 
 void stars_init()
 {
@@ -132,6 +139,24 @@ void character_init()
     chara.atk_Sound = al_create_sample_instance(sample);
     al_set_sample_instance_playmode(chara.atk_Sound, ALLEGRO_PLAYMODE_ONCE);
     al_attach_sample_instance_to_mixer(chara.atk_Sound, al_get_default_mixer());
+
+    // move effective sound
+    sealsound = al_load_sample("./sound/seal.wav");
+    chara.sealsound = al_create_sample_instance(sealsound);
+    al_set_sample_instance_playmode(chara.sealsound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(chara.sealsound, al_get_default_mixer());
+
+    // star effective sound
+    starsound = al_load_sample("./sound/star.wav");
+    chara.starsound = al_create_sample_instance(starsound);
+    al_set_sample_instance_playmode(chara.starsound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(chara.starsound, al_get_default_mixer());
+
+    // hit effective sound
+    hitsound = al_load_sample("./sound/hit.wav");
+    chara.hitsound = al_create_sample_instance(hitsound);
+    al_set_sample_instance_playmode(chara.hitsound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(chara.hitsound, al_get_default_mixer());
 
     // initial the geometric information of character
     chara.width = al_get_bitmap_width(chara.img_move[0]);
@@ -258,6 +283,12 @@ void stars_update()
                 {
                     stars[star].live = false;
                     chara.speedX+=0.2;
+                    al_play_sample_instance(chara.starsound);
+                    chara.hp++;
+                    if (chara.hp > 5)
+                    {
+                        chara.hp = 5;
+                    }
                 }
             }
         }
@@ -319,6 +350,7 @@ void rocks_update()
                 else
                 {
                     rocks[rock].live = false;
+                    al_play_sample_instance(chara.hitsound);
                     chara.hp--;
                 }
             }
@@ -466,6 +498,7 @@ void character_draw()
             if (chara.anime < chara.anime_time / 2)
             {
                 al_draw_bitmap(chara.img_move[0], chara.x, chara.y, ALLEGRO_FLIP_HORIZONTAL);
+                al_play_sample_instance(chara.sealsound);
             }
             else
             {
@@ -477,6 +510,7 @@ void character_draw()
             if (chara.anime < chara.anime_time / 2)
             {
                 al_draw_bitmap(chara.img_move[0], chara.x, chara.y, 0);
+                al_play_sample_instance(chara.sealsound);
             }
             else
             {
